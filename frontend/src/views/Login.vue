@@ -1,7 +1,9 @@
 <script setup>
-import {reactive, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {ElMessage} from 'element-plus'
-import {userRegisterService, userLoginService} from '@/api/user.js'
+import {User, Lock, Message} from '@element-plus/icons-vue'
+import axios from 'axios'
+import PasswordQualityCalculator from 'password-quality-calculator';
 
 const isRegister = ref(true) // 用于切换注册与登录表单的显示
 const accountData = ref({ // 必要的账号数据
@@ -13,6 +15,14 @@ const accountData = ref({ // 必要的账号数据
   rePassword: ''
 })
 const formRef = ref(null) // 表单引用
+const rememberMe = ref(false) // 是否记忆账号密码
+const passwordStrength = ref('')
+const isBarShow = ref(true)
+const PASSWORD_LEVEL = ref({
+  'weak': 64,
+  'moderate': 80
+})
+
 
 const checkRePassword = (rule, value, callback) => {
   if (value === '') {
@@ -89,7 +99,7 @@ const rules = {
     {
       min: 6,
       max: 25,
-      message: '密码长度为6~25位',
+      message: '密码至少为字母与数字组合，长度为6~25位',
       trigger: 'blur'
     }
   ],
@@ -102,56 +112,125 @@ const rules = {
 }
 
 const clearAccount = () => {
+  isRegister.value = !isRegister.value
+  rememberMe.value = false
   accountData.value = {
     email: '',
     code: '',
     username: '',
-    userType: 'Customer',
+    userType: 'CUSTOMER',
     password: '',
     rePassword: ''
   }
+  passwordStrength.value = ''
 }
 
 const register = async () => {
   try {
-    let result = await userRegisterService(accountData)
-    ElMessage.success(result.msg ? result.msg : '注册成功')
+    await formRef.value.validate()
+    const response = await axios.post('/api/auth/register', {
+      userType: accountData.value.userType,
+      username: accountData.value.username,
+      password: accountData.value.password,
+      email: accountData.value.email
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    ElMessage.success('注册成功！')
+    isRegister.value = false
     clearAccount()
   } catch (error) {
-    ElMessage.error('注册失败，请稍后再试')
+    if (error.response?.data?.message) {
+      ElMessage.error(`注册失败: ${error.response.data.message}`)
+    } else {
+      ElMessage.error('注册失败，请稍后重试')
+    }
   }
 }
+
 
 const login = async () => {
   try {
-    let result = await userLoginService(accountData)
-    ElMessage.success(result.msg ? result.msg : '登录成功')
-    clearAccount()
+    await formRef.value.validate()
+    const response = await axios.post('/api/auth/login', {
+      username: accountData.value.username,
+      password: accountData.value.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    ElMessage.success('登录成功！')
+    if (rememberMe.value) {
+      localStorage.setItem('savedAccount', JSON.stringify({
+        username: accountData.value.username,
+        password: accountData.value.password
+      }))
+    }
   } catch (error) {
-    ElMessage.error('登录失败，请检查用户名和密码')
+    if (error.response?.data?.message) {
+      ElMessage.error(`登录失败: ${error.response.data.message}`)
+    } else {
+      ElMessage.error('登录失败')
+    }
   }
 }
 
-const submitForm = async () => {
-  if (!formRef.value) return
+onMounted(() => {
+  const savedAccount = localStorage.getItem('savedAccount')
+  if (savedAccount) {
+    const data = JSON.parse(savedAccount)
+    accountData.value.username = data.username
+    accountData.value.password = data.password
+    rememberMe.value = true
+  }
+})
 
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      if (isRegister.value) {
-        register()
+const isPasswordValid = () => {
+  return new Promise((resolve) => {
+    formRef.value.validateField('password', (isValid) => {
+      if (isValid) {
+        isBarShow.value = true;
+        resolve(true);
       } else {
-        login()
+        isBarShow.value = false;
+        resolve(false);
       }
-    } else {
-      if (isRegister.value) {
-        ElMessage.error('注册失败')
-      }else {
-        ElMessage.error('无法登录，请检查账号密码')
-      }
-      return false
-    }
+    })
   })
 }
+
+const calculatePasswordStrength = async () => {
+  const isValid = await isPasswordValid()
+  if (!isValid) return
+
+  const passwordStore = PasswordQualityCalculator(accountData.value.password)
+  if (passwordStore <= PASSWORD_LEVEL.value.weak) {
+    passwordStrength.value = 'weak'
+  } else if (passwordStore <= PASSWORD_LEVEL.value.moderate) {
+    passwordStrength.value = 'moderate'
+  } else {
+    passwordStrength.value = 'strong'
+  }
+  console.log(passwordStrength.value)
+}
+
+const strengthText = computed(() => {
+  switch (passwordStrength.value) {
+    case 'weak':
+      return '弱';
+    case 'moderate':
+      return '中';
+    case 'strong':
+      return '强';
+    default:
+      return '';
+  }
+})
+
 
 </script>
 
@@ -171,23 +250,43 @@ const submitForm = async () => {
         </el-form-item>
         <div style="display: flex; align-items: center;">
           <el-form-item prop="email" style="flex: 2;">
-            <el-input placeholder="请输入邮箱" v-model="accountData.email"></el-input>
+            <el-input :prefix-icon="Message" placeholder="请输入邮箱" v-model="accountData.email"></el-input>
           </el-form-item>
           <el-form-item prop="code" style="flex: 1; margin-left: 20px;">
             <el-input placeholder="请输入验证码" v-model="accountData.code"></el-input>
           </el-form-item>
         </div>
         <el-form-item prop="username">
-          <el-input placeholder="请输入账号名" v-model="accountData.username"></el-input>
+          <el-input :prefix-icon="User" placeholder="请输入账号名" v-model="accountData.username"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input placeholder="请输入密码" v-model="accountData.password"></el-input>
+          <div class="password-input-wrapper">
+            <el-input
+                placeholder="请输入密码"
+                v-model="accountData.password"
+                @input="calculatePasswordStrength"
+                :prefix-icon="Lock"
+            >
+            </el-input>
+            <span
+                v-show="isBarShow"
+                class="strength-text"
+                :class="passwordStrength"
+            >{{ strengthText }}</span>
+          </div>
         </el-form-item>
+
+
         <el-form-item prop="rePassword">
-          <el-input placeholder="请确认密码" v-model="accountData.rePassword"></el-input>
+          <el-input
+              :prefix-icon="Lock"
+              placeholder="请确认密码"
+              v-model="accountData.rePassword"
+          ></el-input>
         </el-form-item>
+
         <el-form-item>
-          <el-button type="primary" class="button" @click="submitForm">注册</el-button>
+          <el-button type="primary" class="button" @click="register">注册</el-button>
         </el-form-item>
         <el-form-item>
           <div class="hint">
@@ -195,7 +294,7 @@ const submitForm = async () => {
             <el-link
                 type="primary"
                 :underline="false"
-                @click="isRegister=false"
+                @click="clearAccount"
             >登录
             </el-link>
           </div>
@@ -212,26 +311,26 @@ const submitForm = async () => {
           <div class="header-info">登录</div>
         </el-form-item>
         <el-form-item prop="username">
-          <el-input placeholder="请输入用户名" v-model="accountData.username"></el-input>
+          <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="accountData.username"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input placeholder="请输入密码" v-model="accountData.password"></el-input>
+          <el-input :prefix-icon="Lock" placeholder="请输入密码" v-model="accountData.password"></el-input>
         </el-form-item>
         <el-form-item>
           <div class="flex-box">
-            <el-checkbox>记住我</el-checkbox>
+            <el-checkbox v-model="rememberMe" @click="">记住我</el-checkbox>
             <el-link type="primary" :underline="false">忘记密码？</el-link>
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="button" @click="submitForm">登录</el-button>
+          <el-button type="primary" class="button" @click="login">登录</el-button>
         </el-form-item>
         <el-form-item>
           <div class="hint">
             还未注册？点击
             <el-link
                 type="primary"
-                @click="isRegister=true"
+                @click="clearAccount"
                 :underline="false"
             >注册
             </el-link>
@@ -278,6 +377,37 @@ const submitForm = async () => {
     width: 63%;
     display: flex;
     justify-content: space-between;
+  }
+
+  .password-input-wrapper {
+    position: relative;
+    width: 100%;
+
+    .strength-text {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      z-index: 2;
+      pointer-events: none;
+
+      &.weak {
+        color: #ff4d4f;
+      }
+
+      &.moderate {
+        color: #faad14;
+      }
+
+      &.strong {
+        color: #52c41a;
+      }
+    }
+
+    .el-input__wrapper {
+      padding-right: 60px !important;
+    }
   }
 
 }
