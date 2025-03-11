@@ -1,28 +1,22 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue'
-import {ElMessage} from 'element-plus'
+import {useRegisterService, useLoginService, useGetCaptchaService} from "@/api/auth.js"
+import {useTokenStore} from "@/stores/token.js"
+import router from "@/router/index.js"
+import {ElMessage} from "element-plus"
 import {User, Lock, Message} from '@element-plus/icons-vue'
-import axios from 'axios'
-import PasswordQualityCalculator from 'password-quality-calculator';
+import PasswordQualityCalculator from 'password-quality-calculator'
 
-const isRegister = ref(true) // 用于切换注册与登录表单的显示
-const accountData = ref({ // 必要的账号数据
-  email: '',
-  code: '',
-  username: '',
-  userType: 'Customer',
-  password: '',
-  rePassword: ''
-})
-const formRef = ref(null) // 表单引用
-const rememberMe = ref(false) // 是否记忆账号密码
-const passwordStrength = ref('')
-const isBarShow = ref(true)
-const PASSWORD_LEVEL = ref({
-  'weak': 64,
-  'moderate': 80
-})
 
+/*
+* 创建tokenStore
+* */
+
+const tokenStore = useTokenStore()
+
+/*
+* 表单验证规则
+* */
 
 const checkRePassword = (rule, value, callback) => {
   if (value === '') {
@@ -57,7 +51,7 @@ const rules = {
       trigger: 'blur'
     }
   ],
-  code: [
+  captchaValue: [
     {
       required: true,
       message: '验证码长度为6位',
@@ -111,73 +105,23 @@ const rules = {
   ]
 }
 
-const clearAccount = () => {
-  isRegister.value = !isRegister.value
-  rememberMe.value = false
-  accountData.value = {
-    email: '',
-    code: '',
-    username: '',
-    userType: 'CUSTOMER',
-    password: '',
-    rePassword: ''
-  }
-  passwordStrength.value = ''
-}
 
-const register = async () => {
-  try {
-    await formRef.value.validate()
-    const response = await axios.post('/api/auth/register', {
-      userType: accountData.value.userType,
-      username: accountData.value.username,
-      password: accountData.value.password,
-      email: accountData.value.email
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+/*
+* 登录与注册部分
+* */
 
-    ElMessage.success('注册成功！')
-    isRegister.value = false
-    clearAccount()
-  } catch (error) {
-    if (error.response?.data?.message) {
-      ElMessage.error(`注册失败: ${error.response.data.message}`)
-    } else {
-      ElMessage.error('注册失败，请稍后重试')
-    }
-  }
-}
-
-
-const login = async () => {
-  try {
-    await formRef.value.validate()
-    const response = await axios.post('/api/auth/login', {
-      username: accountData.value.username,
-      password: accountData.value.password
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    ElMessage.success('登录成功！')
-    if (rememberMe.value) {
-      localStorage.setItem('savedAccount', JSON.stringify({
-        username: accountData.value.username,
-        password: accountData.value.password
-      }))
-    }
-  } catch (error) {
-    if (error.response?.data?.message) {
-      ElMessage.error(`登录失败: ${error.response.data.message}`)
-    } else {
-      ElMessage.error('登录失败')
-    }
-  }
-}
+const accountData = ref({
+  email: '',
+  username: '',
+  userType: 'Customer',
+  password: '',
+  rePassword: '',
+  captchaToken: '',
+  captchaValue: ''
+})
+const formRef = ref(null)
+const isRegister = ref(false)
+const rememberMe = ref(false)
 
 onMounted(() => {
   const savedAccount = localStorage.getItem('savedAccount')
@@ -187,17 +131,111 @@ onMounted(() => {
     accountData.value.password = data.password
     rememberMe.value = true
   }
+  getCaptcha()
+})
+
+const register = async () => {
+  try {
+    await formRef.value.validate()
+    await useRegisterService({
+      userType: accountData.value.userType,
+      username: accountData.value.username,
+      password: accountData.value.password,
+      email: accountData.value.email,
+      captchaToken: accountData.value.captchaToken,
+      captchaValue: accountData.value.captchaValue
+    })
+    jumpToLogin()
+  } catch (error) {
+    ElMessage.error('注册失败')
+  }
+}
+
+const login = async () => {
+  try {
+    await formRef.value.validate()
+    const response = await useLoginService({
+      username: accountData.value.username,
+      password: accountData.value.password
+    })
+    if (rememberMe.value) {
+      localStorage.setItem('savedAccount', JSON.stringify({
+        username: accountData.value.username,
+        password: accountData.value.password
+      }))
+    } else {
+      if (localStorage.getItem('savedAccount')) {
+        localStorage.removeItem('savedAccount')
+      }
+    }
+    tokenStore.setToken(response.token)
+    await router.push('/')
+  } catch (error) {
+    ElMessage.error('登录失败')
+  }
+
+}
+
+const clearAccount = () => {
+  isRegister.value = !isRegister.value
+  rememberMe.value = false
+  accountData.value = {
+    email: '',
+    username: '',
+    userType: accountData.value.userType,
+    password: '',
+    rePassword: '',
+    captchaToken: accountData.value.captchaToken,
+    captchaValue: ''
+  }
+  passwordStrength.value = ''
+}
+
+const jumpToLogin = () => {
+  isRegister.value = !isRegister.value
+  accountData.value = {
+    email: '',
+    username: accountData.value.username,
+    userType: accountData.value.userType,
+    password: accountData.value.password,
+    rePassword: '',
+    captchaToken: accountData.value.captchaToken,
+    captchaValue: ''
+  }
+}
+
+/*
+* 密码强度验证部分
+* */
+
+const PASSWORD_LEVEL = ref({
+  'weak': 64,
+  'moderate': 80
+})
+const passwordStrength = ref('')
+const isBarShow = ref(true)
+const strengthText = computed(() => {
+  switch (passwordStrength.value) {
+    case 'weak':
+      return '弱'
+    case 'moderate':
+      return '中'
+    case 'strong':
+      return '强'
+    default:
+      return ''
+  }
 })
 
 const isPasswordValid = () => {
   return new Promise((resolve) => {
     formRef.value.validateField('password', (isValid) => {
       if (isValid) {
-        isBarShow.value = true;
-        resolve(true);
+        isBarShow.value = true
+        resolve(true)
       } else {
-        isBarShow.value = false;
-        resolve(false);
+        isBarShow.value = false
+        resolve(false)
       }
     })
   })
@@ -215,29 +253,30 @@ const calculatePasswordStrength = async () => {
   } else {
     passwordStrength.value = 'strong'
   }
-  console.log(passwordStrength.value)
 }
 
-const strengthText = computed(() => {
-  switch (passwordStrength.value) {
-    case 'weak':
-      return '弱';
-    case 'moderate':
-      return '中';
-    case 'strong':
-      return '强';
-    default:
-      return '';
-  }
-})
+/*
+* 验证码部分
+* */
 
+const captchaImage = ref('')
+
+const getCaptcha = async () => {
+  const captchaData = await useGetCaptchaService()
+  captchaImage.value = `data:image/png;base64,${captchaData.imageBase64}`
+  accountData.value.captchaToken = captchaData.token
+}
+
+/*
+* 非正式代码
+* */
 
 </script>
 
 <template>
   <el-row class="login-page">
     <el-col :span="8"></el-col>
-    <el-col :span="8" offset="4" class="form">
+    <el-col :span="8" class="form">
       <!-- 注册表单 -->
       <el-form
           v-if="isRegister"
@@ -252,13 +291,18 @@ const strengthText = computed(() => {
           <el-form-item prop="email" style="flex: 2;">
             <el-input :prefix-icon="Message" placeholder="请输入邮箱" v-model="accountData.email"></el-input>
           </el-form-item>
-          <el-form-item prop="code" style="flex: 1; margin-left: 20px;">
-            <el-input placeholder="请输入验证码" v-model="accountData.code"></el-input>
+          <el-form-item style="flex: 1; margin-left: 20px;">
+            <img v-if="captchaImage" :src="captchaImage" class="captcha" @click="getCaptcha">
           </el-form-item>
         </div>
-        <el-form-item prop="username">
-          <el-input :prefix-icon="User" placeholder="请输入账号名" v-model="accountData.username"></el-input>
-        </el-form-item>
+        <div style="display: flex; align-items: center;">
+          <el-form-item prop="username" style="flex: 2;">
+            <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="accountData.username"></el-input>
+          </el-form-item>
+          <el-form-item prop="captchaValue" style="flex: 1; margin-left: 20px;">
+            <el-input placeholder="请输入验证码" v-model="accountData.captchaValue"></el-input>
+          </el-form-item>
+        </div>
         <el-form-item prop="password">
           <div class="password-input-wrapper">
             <el-input
@@ -275,8 +319,6 @@ const strengthText = computed(() => {
             >{{ strengthText }}</span>
           </div>
         </el-form-item>
-
-
         <el-form-item prop="rePassword">
           <el-input
               :prefix-icon="Lock"
@@ -300,6 +342,7 @@ const strengthText = computed(() => {
           </div>
         </el-form-item>
       </el-form>
+
       <!-- 登录表单 -->
       <el-form
           v-else
@@ -314,7 +357,12 @@ const strengthText = computed(() => {
           <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="accountData.username"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input :prefix-icon="Lock" placeholder="请输入密码" v-model="accountData.password"></el-input>
+          <el-input
+              :prefix-icon="Lock"
+              placeholder="请输入密码"
+              v-model="accountData.password"
+              show-password
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <div class="flex-box">
@@ -379,6 +427,11 @@ const strengthText = computed(() => {
     justify-content: space-between;
   }
 
+  .captcha {
+    width: 100%;
+    cursor: pointer;
+  }
+
   .password-input-wrapper {
     position: relative;
     width: 100%;
@@ -409,6 +462,5 @@ const strengthText = computed(() => {
       padding-right: 60px !important;
     }
   }
-
 }
 </style>
