@@ -204,6 +204,53 @@ const jumpToLogin = () => {
 * 密码强度验证部分
 * */
 
+const PASSWORD_LEVEL = ref({
+  'weak': 64,
+  'moderate': 80
+})
+const passwordStrength = ref('')
+const isBarShow = ref(true)
+const strengthText = computed(() => {
+  switch (passwordStrength.value) {
+    case 'weak':
+      return '弱'
+    case 'moderate':
+      return '中'
+    case 'strong':
+      return '强'
+    default:
+      return ''
+  }
+})
+
+const isPasswordValid = () => {
+  return new Promise((resolve) => {
+    formRef.value.validateField('password', (isValid) => {
+      if (isValid) {
+        isBarShow.value = true
+        resolve(true)
+      } else {
+        isBarShow.value = false
+        resolve(false)
+      }
+    })
+  })
+}
+
+const calculatePasswordStrength = async () => {
+  const isValid = await isPasswordValid()
+  if (!isValid) return
+
+  const passwordStore = PasswordQualityCalculator(accountData.value.password)
+  if (passwordStore <= PASSWORD_LEVEL.value.weak) {
+    passwordStrength.value = 'weak'
+  } else if (passwordStore <= PASSWORD_LEVEL.value.moderate) {
+    passwordStrength.value = 'moderate'
+  } else {
+    passwordStrength.value = 'strong'
+  }
+}
+
 /*
 * 验证码部分
 * */
