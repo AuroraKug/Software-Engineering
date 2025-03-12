@@ -129,6 +129,7 @@ onMounted(() => {
     accountData.value.password = data.password
     rememberMe.value = true
   }
+  getCaptcha()
 })
 
 const register = async () => {
@@ -185,6 +186,7 @@ const clearAccount = () => {
     captchaToken: accountData.value.captchaToken,
     captchaValue: ''
   }
+  passwordStrength.value = ''
 }
 
 const jumpToLogin = () => {
