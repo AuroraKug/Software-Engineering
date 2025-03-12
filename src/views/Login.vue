@@ -268,9 +268,193 @@ const getCaptcha = async () => {
 </script>
 
 <template>
+  <el-row class="login-page">
+    <el-col :span="8"></el-col>
+    <el-col :span="8" class="form">
+      <!-- 注册表单 -->
+      <el-form
+          v-if="isRegister"
+          :model="accountData"
+          :rules="rules"
+          ref="formRef"
+      >
+        <el-form-item>
+          <div class="header-info">注册</div>
+        </el-form-item>
+        <div style="display: flex; align-items: center;">
+          <el-form-item prop="email" style="flex: 2;">
+            <el-input :prefix-icon="Message" placeholder="请输入邮箱" v-model="accountData.email"></el-input>
+          </el-form-item>
+          <el-form-item style="flex: 1; margin-left: 20px;">
+            <img v-if="captchaImage" :src="captchaImage" class="captcha" @click="getCaptcha">
+          </el-form-item>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <el-form-item prop="username" style="flex: 2;">
+            <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="accountData.username"></el-input>
+          </el-form-item>
+          <el-form-item prop="captchaValue" style="flex: 1; margin-left: 20px;">
+            <el-input placeholder="请输入验证码" v-model="accountData.captchaValue"></el-input>
+          </el-form-item>
+        </div>
+        <el-form-item prop="password">
+          <div class="password-input-wrapper">
+            <el-input
+                placeholder="请输入密码"
+                v-model="accountData.password"
+                @input="calculatePasswordStrength"
+                :prefix-icon="Lock"
+            >
+            </el-input>
+            <span
+                v-show="isBarShow"
+                class="strength-text"
+                :class="passwordStrength"
+            >{{ strengthText }}</span>
+          </div>
+        </el-form-item>
+        <el-form-item prop="rePassword">
+          <el-input
+              :prefix-icon="Lock"
+              placeholder="请确认密码"
+              v-model="accountData.rePassword"
+          ></el-input>
+        </el-form-item>
 
+        <el-form-item>
+          <el-button type="primary" class="button" @click="register">注册</el-button>
+        </el-form-item>
+        <el-form-item>
+          <div class="hint">
+            已有账号？点击
+            <el-link
+                type="primary"
+                :underline="false"
+                @click="clearAccount"
+            >登录
+            </el-link>
+          </div>
+        </el-form-item>
+      </el-form>
+
+      <!-- 登录表单 -->
+      <el-form
+          v-else
+          :model="accountData"
+          :rules="rules"
+          ref="formRef"
+      >
+        <el-form-item>
+          <div class="header-info">登录</div>
+        </el-form-item>
+        <el-form-item prop="username">
+          <el-input :prefix-icon="User" placeholder="请输入用户名" v-model="accountData.username"></el-input>
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+              :prefix-icon="Lock"
+              placeholder="请输入密码"
+              v-model="accountData.password"
+              show-password
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <div class="flex-box">
+            <el-checkbox v-model="rememberMe" @click="">记住我</el-checkbox>
+            <el-link type="primary" :underline="false">忘记密码？</el-link>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" class="button" @click="login">登录</el-button>
+        </el-form-item>
+        <el-form-item>
+          <div class="hint">
+            还未注册？点击
+            <el-link
+                type="primary"
+                @click="clearAccount"
+                :underline="false"
+            >注册
+            </el-link>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-col>
+    <el-col :span="8"></el-col>
+  </el-row>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
+.login-page {
+  height: 100vh;
+  background-color: #fff;
 
+  .form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    user-select: none;
+  }
+
+  .header-info {
+    margin: auto;
+    font: 2em "Fira Sans", sans-serif;
+    font-weight: bold;
+  }
+
+  .button {
+    margin: auto;
+    width: 63%;
+  }
+
+  .hint {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+  }
+
+  .flex-box {
+    margin: auto;
+    width: 63%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .captcha {
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .password-input-wrapper {
+    position: relative;
+    width: 100%;
+
+    .strength-text {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      z-index: 2;
+      pointer-events: none;
+
+      &.weak {
+        color: #ff4d4f;
+      }
+
+      &.moderate {
+        color: #faad14;
+      }
+
+      &.strong {
+        color: #52c41a;
+      }
+    }
+
+    .el-input__wrapper {
+      padding-right: 60px !important;
+    }
+  }
+}
 </style>
