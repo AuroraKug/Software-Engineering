@@ -255,6 +255,14 @@ const calculatePasswordStrength = async () => {
 * 验证码部分
 * */
 
+const captchaImage = ref('')
+
+const getCaptcha = async () => {
+  const captchaData = await useGetCaptchaService()
+  captchaImage.value = `data:image/png;base64,${captchaData.imageBase64}`
+  accountData.value.captchaToken = captchaData.token
+}
+
 </script>
 
 <template>
