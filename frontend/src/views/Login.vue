@@ -18,6 +18,16 @@ const tokenStore = useTokenStore()
 * 表单验证规则
 * */
 
+const checkPassword = (rule, value, callback) => {
+  const hasNumber = /\d/.test(value)
+  const hasLetter = /[a-zA-Z]/.test(value)
+  if (!hasNumber || !hasLetter) {
+    callback(new Error('密码必须包含数字和字母组合'))
+  } else {
+    callback()
+  }
+}
+
 const checkRePassword = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('密码不能为空'))
@@ -93,7 +103,11 @@ const rules = {
     {
       min: 6,
       max: 25,
-      message: '密码至少为字母与数字组合，长度为6~25位',
+      message: '密码必须包含数字和字母组合，长度为6~25位',
+      trigger: 'blur'
+    },
+    {
+      validator: checkPassword,
       trigger: 'blur'
     }
   ],
@@ -147,7 +161,9 @@ const register = async () => {
     })
     jumpToLogin()
   } catch (error) {
-    ElMessage.error('注册失败')
+    return
+  } finally {
+    await getCaptcha()
   }
 }
 
@@ -171,9 +187,8 @@ const login = async () => {
     tokenStore.setToken(response.token)
     await router.push('/')
   } catch (error) {
-    ElMessage.error('登录失败')
+    return
   }
-
 }
 
 const clearAccount = () => {
@@ -292,7 +307,7 @@ const getCaptcha = async () => {
             <el-input :prefix-icon="Message" placeholder="请输入邮箱" v-model="accountData.email"></el-input>
           </el-form-item>
           <el-form-item style="flex: 1; margin-left: 20px;">
-            <img v-if="captchaImage" :src="captchaImage" class="captcha" @click="getCaptcha">
+            <img v-if="captchaImage" :src="captchaImage" class="captcha" @click="getCaptcha" alt="captcha">
           </el-form-item>
         </div>
         <div style="display: flex; align-items: center;">
@@ -310,6 +325,7 @@ const getCaptcha = async () => {
                 v-model="accountData.password"
                 @input="calculatePasswordStrength"
                 :prefix-icon="Lock"
+                show-password
             >
             </el-input>
             <span
@@ -324,6 +340,7 @@ const getCaptcha = async () => {
               :prefix-icon="Lock"
               placeholder="请确认密码"
               v-model="accountData.rePassword"
+              show-password
           ></el-input>
         </el-form-item>
 
