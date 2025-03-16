@@ -184,7 +184,7 @@ const login = async () => {
         localStorage.removeItem('savedAccount')
       }
     }
-    tokenStore.setToken(response.token)
+    tokenStore.setToken(response.token, response.expiresAt)
     await router.push('/')
   } catch (error) {
     return
@@ -217,6 +217,10 @@ const jumpToLogin = () => {
     captchaToken: accountData.value.captchaToken,
     captchaValue: ''
   }
+}
+
+const jumpToReset = () => {
+  router.push('/reset')
 }
 
 /*
@@ -384,7 +388,7 @@ const getCaptcha = async () => {
         <el-form-item>
           <div class="flex-box">
             <el-checkbox v-model="rememberMe" @click="">记住我</el-checkbox>
-            <el-link type="primary" :underline="false">忘记密码？</el-link>
+            <el-link type="primary" :underline="false" @click="jumpToReset">忘记密码？</el-link>
           </div>
         </el-form-item>
         <el-form-item>
