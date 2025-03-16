@@ -59,6 +59,7 @@ export const useLoginService = async (credentials) => {
 			}
 		})
 		ElMessage.success('登录成功！')
+		console.log(response)
 		return response.data
 	} catch (error) {
 		if (error.response?.data?.code) {
