@@ -3,21 +3,27 @@ import {ref} from 'vue'
 
 export const useTokenStore = defineStore('token', () => {
 			const token = ref('')
+			const expiresAt = ref('')
 
-			const setToken = (newToken) => {
+			const setToken = (newToken, expirationTime) => {
 				token.value = newToken
+				expiresAt.value = expirationTime
 			}
 
 			const removeToken = () => {
 				token.value = ''
+				expiresAt.value = ''
 			}
 
 			const isLoggedIn = () => {
-				return !!token.value
+				if (!token.value || !expiresAt.value) {
+					return false
+				}
+				return new Date() < new Date(expiresAt.value)
 			}
 
 			return {
-				token, setToken, removeToken, isLoggedIn
+				token, expiresAt, setToken, removeToken, isLoggedIn
 			}
 		},
 		{

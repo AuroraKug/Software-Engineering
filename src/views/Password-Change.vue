@@ -4,15 +4,15 @@
     <form @submit.prevent="handleSubmit">
       <div>
         <label for="currentPassword">当前密码：</label>
-        <input type="password" id="currentPassword" v-model="currentPassword" required />
+        <input type="password" id="currentPassword" v-model="currentPassword" required/>
       </div>
       <div>
         <label for="newPassword">新密码：</label>
-        <input type="password" id="newPassword" v-model="newPassword" required />
+        <input type="password" id="newPassword" v-model="newPassword" required/>
       </div>
       <div>
         <label for="confirmPassword">确认新密码：</label>
-        <input type="password" id="confirmPassword" v-model="confirmPassword" required />
+        <input type="password" id="confirmPassword" v-model="confirmPassword" required/>
       </div>
       <button type="submit">提交</button>
     </form>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {ref} from 'vue';
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -43,7 +43,7 @@ const handleSubmit = async () => {
   try {
     const response = await fetch('/api/change-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         currentPassword: currentPassword.value,
         newPassword: newPassword.value
@@ -72,32 +72,32 @@ const handleSubmit = async () => {
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  
+
   h2 {
     text-align: center;
   }
-  
+
   form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    
+
     div {
       display: flex;
       flex-direction: column;
     }
-    
+
     label {
       margin-bottom: 5px;
       font-weight: bold;
     }
-    
+
     input {
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    
+
     button {
       padding: 10px;
       border: none;
@@ -106,7 +106,7 @@ const handleSubmit = async () => {
       color: #fff;
       cursor: pointer;
       transition: background-color 0.3s;
-      
+
       &:hover {
         background-color: #0056b3;
       }
