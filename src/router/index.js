@@ -1,20 +1,23 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import LoginVue from '@/views/Login.vue'
 import LayoutVue from '@/views/Layout.vue'
-import ResetVue from '@/views/Password-Change.vue'
 import {useTokenStore} from "@/stores/token.js"
 
+import authRoutes from './auth.routes'
+
+const mainRoutes = [
+	{ path: '/', component: LayoutVue }
+]
+
 const routes = [
-	{path: '/login', component: LoginVue},
-	{path: '/', component: LayoutVue},
-	{path: '/reset', component: ResetVue}
+	...authRoutes,
+	...mainRoutes
 ]
 
 const router = createRouter(
-		{
-			history: createWebHistory(),
-			routes: routes
-		}
+	{
+		history: createWebHistory(),
+		routes: routes
+	}
 )
 
 router.beforeEach((to, from, next) => {
