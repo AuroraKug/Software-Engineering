@@ -1,6 +1,12 @@
 <template>
   <el-header class="app-header">
     <el-row type="flex" justify="space-between" align="middle">
+      <!-- Sidebar 区域 -->
+      <el-col :span="1">
+        <el-button class="sidebar-toggle" @click="$emit('toggle-sidebar')">
+          <el-icon><Operation /></el-icon>
+        </el-button>
+      </el-col>
       <!-- Logo 区域 -->
       <el-col :span="4">
         <div class="logo">Review Hub</div>
@@ -29,7 +35,9 @@
       <!-- 右侧：设置按钮和用户头像（个人中心） -->
       <el-col :span="2" class="header-right">
         <div class="header-controls">
-          
+          <el-button class="change-style" @click="$emit('change-style')">
+            <el-icon><Operation /></el-icon>
+          </el-button>
           <!-- 用户头像和下拉菜单 -->
           <el-dropdown trigger="click">
             <span class="el-dropdown-link">
@@ -44,9 +52,7 @@
             </template>
           </el-dropdown>
 
-          <el-button @click="$emit('toggle-sidebar')">
-            <el-icon><Operation /></el-icon>
-          </el-button>
+          
           <!-- 主题切换组件 -->
           <ThemeSwitcher @theme-changed="$emit('theme-changed', $event)" />
         </div>
@@ -91,9 +97,12 @@ const openSettings = () => {
 <style scoped>
 .app-header {
   background-color: #ffffff;
-  padding: 0 20px;
+  padding: 0;           /* 去掉左右留白 */
+  margin: 0;            /* 确保没有外部间距 */
+  width: 100vw;         /* 让 Header 占满整个视口宽度 */
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
+
 
 .logo {
   font-size: 1.5em;
@@ -123,5 +132,9 @@ const openSettings = () => {
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 20px;
+}
+
+.sidebar-toggle {
+  margin-left: 10px;
 }
 </style>
