@@ -1,9 +1,5 @@
-<template>
-    <div class="theme-switcher">
-      <button @click="selectTheme('default')">默认主题</button>
-      <button @click="selectTheme('dark')">暗黑主题</button>
-      <button @click="selectTheme('dynamic')">动态主题</button>
-    </div>
+  <template>
+    
   </template>
   
   <script setup>

@@ -3,6 +3,7 @@ import LayoutVue from '@/views/Layout.vue'
 import {useTokenStore} from "@/stores/token.js"
 
 import authRoutes from './auth.routes'
+import userProfileRoutes from './user.profile.routes'
 
 const mainRoutes = [
 	{ path: '/', component: LayoutVue }
@@ -10,7 +11,8 @@ const mainRoutes = [
 
 const routes = [
 	...authRoutes,
-	...mainRoutes
+	...mainRoutes,
+	...userProfileRoutes
 ]
 
 const router = createRouter(
@@ -25,7 +27,7 @@ router.beforeEach((to, from, next) => {
 	if (tokenStore.isLoggedIn()) {
 		next()
 	} else {
-		if (to.path === '/login' || to.path === '/reset') {
+		if (to.path === '/login' || to.path === '/reset' || to.path==='/') {
 			next()
 		} else {
 			next('/login')

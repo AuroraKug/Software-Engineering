@@ -1,14 +1,9 @@
-<template>
-    <aside :class="{ collapsed }">
-      <ul>
-        <li><router-link to="/">首页</router-link></li>
-        <li><router-link to="/profile">个人中心</router-link></li>
-      </ul>
-    </aside>
+  <template>
+    <div><router-link to="/">首页</router-link></div>
   </template>
   <script setup>
   import { defineProps } from 'vue'
-  const props = defineProps({ collapsed: Boolean })
+  const props = defineProps({ isSidebarVisible: Boolean })
   </script>
   <style scoped>
   aside { width: 200px; transition: width .2s; }
