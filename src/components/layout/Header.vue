@@ -51,7 +51,7 @@
               <el-dropdown-menu>
                 <el-dropdown-item @click="goToProfile">个人中心</el-dropdown-item>
                 <el-dropdown-item @click="openSettings">设置</el-dropdown-item>
-                <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item divided @click="$emit('logout')">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -130,7 +130,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['change-style','toggle-sidebar',])
+const emit = defineEmits(['change-style','toggle-sidebar','logout'])
 
 // 定义要触发的事件
 

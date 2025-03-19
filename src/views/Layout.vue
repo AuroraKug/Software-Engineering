@@ -5,6 +5,7 @@
       <Header 
         @toggle-sidebar="handleToggleSidebar" 
         @change-style="handleChangeStyle"
+        @logout="handleLogOut"
       />
     </el-header>
 
@@ -32,6 +33,7 @@ import Header from '@/components/layout/Header.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Footer from '@/components/layout/Footer.vue'
 
+import { useLogoutService } from '@/api/auth.js'
 
 
 
@@ -80,6 +82,15 @@ const handleChangeStyle = (style) => {
     backgroundImageUrl.value = `url(${backgrounds[style]})`
   } else {
     backgroundImageUrl.value = 'none'
+  }
+}
+
+const handleLogOut = async ()=>{
+  try {
+    await useLogoutService();
+    console.log('用户已成功登出');
+  } catch (error) {
+    console.error('登出失败:', error.message);
   }
 }
 
