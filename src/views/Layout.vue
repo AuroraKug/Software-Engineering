@@ -4,7 +4,6 @@
     <el-header>
       <Header 
         @toggle-sidebar="handleToggleSidebar" 
-        @theme-changed="handleThemeChanged" 
         @change-style="handleChangeStyle"
       />
     </el-header>
@@ -50,11 +49,7 @@ const handleToggleSidebar = () => {
   console.log("Sidebar happen")
 }
 
-const handleThemeChanged = (theme) => {
-  console.log('当前主题：', theme)
-  // 可根据需要切换主题样式
-  document.documentElement.setAttribute('data-theme', theme)
-}
+
 
 
 

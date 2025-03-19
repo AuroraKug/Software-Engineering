@@ -21,7 +21,7 @@
             <router-link to="/" class="no-underline">首页</router-link>
           </el-menu-item>
           <el-menu-item index="2">
-            <router-link to="/reserve" class="no-underline">保留</router-link>
+            <router-link to="/" class="no-underline">保留</router-link>
           </el-menu-item>
           <el-menu-item index="3">
             <router-link to="/login" class="no-underline">登录</router-link>
@@ -45,13 +45,13 @@
           <!-- 用户头像和下拉菜单 -->
           <el-dropdown trigger="click">
             <span class="el-dropdown-link">
-              <el-avatar src="https://picsum.photos/40" size="medium"></el-avatar>
+              <el-avatar src="https://picsum.photos/40" size="default"></el-avatar>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click.native="goToProfile">个人中心</el-dropdown-item>
-                <el-dropdown-item @click.native="openSettings">设置</el-dropdown-item>
-                <el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
+                <el-dropdown-item @click="goToProfile">个人中心</el-dropdown-item>
+                <el-dropdown-item @click="openSettings">设置</el-dropdown-item>
+                <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -59,34 +59,35 @@
 
           <el-dropdown trigger="click" placement="bottom">
             <!-- 纯 Icon+文字、无边框 -->
-            <el-button type="text">样式
+            <el-button link>样式
               <el-icon>
                 <ArrowDown />
               </el-icon>
             </el-button>
 
             <template #dropdown>
-              <el-menu class="side-menu" :menu-trigger="'hover'" :default-active="activeIndex" mode="vertical"  :collapse="true" >
-                <el-menu-item index="1">Processing Center</el-menu-item>
-                <el-sub-menu index="2">
+              <el-menu class="side-menu" :menu-trigger="'hover'" :default-active="activeIndex" mode="vertical"
+                :collapse="true">
+                <el-menu-item index="'1'">Processing Center</el-menu-item>
+                <el-sub-menu index="'2'">
                   <template #title>Workspace</template>
-                  <el-menu-item index="2-1">item one</el-menu-item>
-                  <el-menu-item index="2-2">item two</el-menu-item>
-                  <el-menu-item index="2-3">item three</el-menu-item>
-                  <el-sub-menu index="2-4">
+                  <el-menu-item index="'2-1'">item one</el-menu-item>
+                  <el-menu-item index="'2-2'">item two</el-menu-item>
+                  <el-menu-item index="'2-3'">item three</el-menu-item>
+                  <el-sub-menu index="'2-4'">
                     <template #title>item four</template>
-                    <el-menu-item index="2-4-1">item one</el-menu-item>
-                    <el-menu-item index="2-4-2">item two</el-menu-item>
-                    <el-menu-item index="2-4-3">item three</el-menu-item>
+                    <el-menu-item index="'2-4-1'">item one</el-menu-item>
+                    <el-menu-item index="'2-4-2'">item two</el-menu-item>
+                    <el-menu-item index="'2-4-3'">item three</el-menu-item>
                   </el-sub-menu>
                 </el-sub-menu>
-                <el-sub-menu index="3">
+                <el-sub-menu index="'3'">
                   <template #title>页面风格</template>
-                  <el-menu-item index="3-1" @click="changeStyle('simple')">简约</el-menu-item>
-                  <el-menu-item index="3-2" @click="changeStyle('natural')">自然</el-menu-item>
-                  <el-menu-item index="3-3" @click="changeStyle('beautify')">美化</el-menu-item>
+                  <el-menu-item index="'3-1'" @click="changeStyle('simple')">简约</el-menu-item>
+                  <el-menu-item index="'3-2'" @click="changeStyle('natural')">自然</el-menu-item>
+                  <el-menu-item index="'3-3'" @click="changeStyle('beautify')">美化</el-menu-item>
                 </el-sub-menu>
-                <el-menu-item index="4">Orders</el-menu-item>
+                <el-menu-item index="'4'">Orders</el-menu-item>
               </el-menu>
             </template>
           </el-dropdown>
@@ -94,7 +95,7 @@
 
 
           <!-- 主题切换组件 -->
-          <ThemeSwitcher @theme-changed="$emit('theme-changed', $event)" />
+          
         </div>
       </el-col>
 
@@ -119,11 +120,17 @@
 
 <script setup>
 import { ref } from 'vue'
-import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { Menu, Operation, ArrowDown } from '@element-plus/icons-vue'
 import { defineProps, defineEmits } from 'vue'
 
+const props = defineProps({
+  activeIndex: {
+    type: String,
+    default: '1'
+  }
+})
 
+const emit = defineEmits(['change-style','toggle-sidebar',])
 
 // 定义要触发的事件
 
@@ -134,20 +141,13 @@ const openSettings = () => {
   settingsVisible.value = true
 }
 
-const changeStyle= (style) => {
-    // 这里可以做更多处理
-    emit('change-style', style)
-    console.log('选中的风格：', style)
-  }
+const changeStyle = (style) => {
+  // 这里可以做更多处理
+  emit('change-style', style)
+  console.log('选中的风格：', style)
+}
 
-  const props = defineProps({
-  activeIndex: {
-    type: String,
-    default: '1'
-  }
-})
 
-const emit = defineEmits(['change-style'])
 
 // 你可以直接使用 props.activeIndex，或者通过解构赋值：
 const { activeIndex } = props
@@ -203,7 +203,7 @@ const { activeIndex } = props
 }
 
 .side-menu.el-menu--collapse {
-  width: 200px !important; /* 根据需要调整宽度 */
+  width: 200px !important;
+  /* 根据需要调整宽度 */
 }
-
 </style>
