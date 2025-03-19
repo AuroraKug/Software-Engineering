@@ -122,6 +122,7 @@
 import { ref } from 'vue'
 import { Menu, Operation, ArrowDown } from '@element-plus/icons-vue'
 import { defineProps, defineEmits } from 'vue'
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   activeIndex: {
@@ -145,6 +146,12 @@ const changeStyle = (style) => {
   // 这里可以做更多处理
   emit('change-style', style)
   console.log('选中的风格：', style)
+}
+
+const router = useRouter();
+
+const goToProfile = () => {
+  router.push('/user-profile');
 }
 
 

@@ -36,5 +36,36 @@ export const useChangePasswordService = async () => {
 		} else {
 			ElMessage.error('密码修改失败，请稍后重试')
 		}
+        throw error
+      }
+}
+
+export const useUserInfoService = async () => {
+    try {
+        const tokenStore=useTokenStore()
+        const userToken=tokenStore.token
+
+        const response = await fetch('/api/user/profile/info', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`
+          },
+        });
+    
+        const data = await response.json();
+        return data
+        
+      } catch (error) {
+        if (error.response?.data?.code) {
+			if (errorCodeMessages[error.response.data.code]) {
+				ElMessage.error(`个人信息请求失败: ${errorCodeMessages[error.response.data.code]}`)
+			} else {
+				ElMessage.error('个人信息请求失败')
+			}
+		} else {
+			ElMessage.error('个人信息请求失败')
+		}
+        throw error
       }
 }
