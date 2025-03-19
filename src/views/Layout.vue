@@ -33,8 +33,7 @@ import Header from '@/components/layout/Header.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Footer from '@/components/layout/Footer.vue'
 
-import defaultBg from '@/assets/images/default.png'
-import bg2 from '@/assets/images/OIP.png'
+
 
 
 const collapsed = ref(false)
@@ -57,6 +56,16 @@ const handleThemeChanged = (theme) => {
   document.documentElement.setAttribute('data-theme', theme)
 }
 
+
+
+
+const backgrounds = {
+  simple: 'none',
+  natural: 'src/assets/images/natural.png',
+  beautify: 'src/assets/images/beautiful.png'
+}
+
+const defaultBg = backgrounds.simple
 // 定义一个背景样式变量，初始使用默认背景
 const backgroundImageUrl = ref(`url(${defaultBg})`)
 
@@ -65,15 +74,17 @@ const containerStyle = computed(() => ({
   '--bg-image': backgroundImageUrl.value
 }))
 
-
-// 通过 Header 上的按钮来切换背景风格
-const handleChangeStyle = () => {
-  console.log("style-changed")
-  // 示例：切换两种背景图片
-  if(backgroundImageUrl.value === 'url(src/assets/images/default.png)'){
-    backgroundImageUrl.value = 'url(src/assets/images/OIP.png)'
+// 处理 Header 发出的背景风格切换事件
+const handleChangeStyle = (style) => {
+  console.log("style-changed:", style)
+  
+  if (backgrounds[style]) {
+    if(backgrounds[style] === "none"){
+      backgroundImageUrl.value = 'none'
+    }
+    backgroundImageUrl.value = `url(${backgrounds[style]})`
   } else {
-    backgroundImageUrl.value = 'url(src/assets/images/default.png)'
+    backgroundImageUrl.value = 'none'
   }
 }
 
