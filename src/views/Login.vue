@@ -220,7 +220,7 @@ const jumpToLogin = () => {
 }
 
 const jumpToReset = () => {
-  router.push('/reset')
+  router.push('/change-password')
 }
 
 /*

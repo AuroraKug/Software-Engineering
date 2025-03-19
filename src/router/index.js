@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
 	if (tokenStore.isLoggedIn()) {
 		next()
 	} else {
-		if (to.path === '/login' || to.path === '/reset' || to.path==='/') {
+		if (to.path === '/login'  || to.path==='/') {
 			next()
 		} else {
 			next('/login')

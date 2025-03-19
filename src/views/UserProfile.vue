@@ -6,6 +6,7 @@
             <el-descriptions-item label="邮箱">{{ userProfile.email }}</el-descriptions-item>
             <el-descriptions-item label="创建时间">{{ formatDate(userProfile.createTime) }}</el-descriptions-item>
         </el-descriptions>
+        <el-button @click="handleChangePassword">修改密码</el-button>
     </el-card>
 </template>
 
@@ -14,6 +15,7 @@ import { ref } from 'vue';
 import dayjs from 'dayjs';
 import { useUserInfoService } from '@/api/userProfile';
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const userProfile = ref({
   username: "",
@@ -34,6 +36,13 @@ const handleFetchUserInfo = async () => {
     } finally {
         loading.value = false;
     }
+}
+
+
+const router = useRouter();
+
+const handleChangePassword = () => {
+    router.push('/change-password');
 }
 
 // 时间格式化函数

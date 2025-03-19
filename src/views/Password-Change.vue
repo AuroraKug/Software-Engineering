@@ -1,116 +1,127 @@
 <template>
-  <div class="password-change-container">
+  <el-card class="password-change-container">
     <h2>修改密码</h2>
-    <form @submit.prevent="handleSubmit">
-      <div>
-        <label for="currentPassword">当前密码：</label>
-        <input type="password" id="currentPassword" v-model="currentPassword" required/>
-      </div>
-      <div>
-        <label for="newPassword">新密码：</label>
-        <input type="password" id="newPassword" v-model="newPassword" required/>
-      </div>
-      <div>
-        <label for="confirmPassword">确认新密码：</label>
-        <input type="password" id="confirmPassword" v-model="confirmPassword" required/>
-      </div>
-      <button type="submit">提交</button>
-    </form>
-    <div v-if="message" :style="{ color: messageColor, marginTop: '10px' }">
-      {{ message }}
-    </div>
-  </div>
+    <el-form ref="formRef" :model="passwordForm" :rules="rules" label-width="100px">
+      <!-- 当前密码 -->
+      <el-form-item label="当前密码" prop="oldPassword">
+        <el-input v-model="passwordForm.oldPassword" type="password" show-password />
+      </el-form-item>
+
+      <!-- 新密码 -->
+      <el-form-item label="新密码" prop="newPassword">
+        <el-input v-model="passwordForm.newPassword" type="password" show-password />
+      </el-form-item>
+
+      <!-- 确认新密码 -->
+      <el-form-item label="确认新密码" prop="confirmPassword">
+        <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
+      </el-form-item>
+
+      <!-- 提交按钮 -->
+      <el-form-item>
+        <el-button type="primary" @click="handleSubmit">提交</el-button>
+        <el-button @click="router.push('/')">取消</el-button>
+      </el-form-item>
+    </el-form>
+
+    <!-- 消息提示 -->
+  </el-card>
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import { ref } from 'vue';
+import { useChangePasswordService } from '@/api/userProfile';
+import { useRouter } from 'vue-router';
 
-const currentPassword = ref('');
-const newPassword = ref('');
-const confirmPassword = ref('');
-const message = ref('');
-const messageColor = ref('');
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+});
+
+const formRef = ref(null);
+
+const checkPassword = (rule, value, callback) => {
+  const hasNumber = /\d/.test(value)
+  const hasLetter = /[a-zA-Z]/.test(value)
+  if (!hasNumber || !hasLetter) {
+    callback(new Error('密码必须包含数字和字母组合'))
+  } else {
+    callback()
+  }
+}
+
+const rules = {
+  currentPassword: [
+    { required: true, message: '请输入当前密码', trigger: 'blur' },
+    {
+      min: 6,
+      max: 25,
+      message: '密码必须包含数字和字母组合，长度为6~25位',
+      trigger: 'blur'
+    },
+    {
+      validator: checkPassword,
+      trigger: 'blur'
+    }],
+  newPassword: [{ required: true, message: '请输入新密码', trigger: 'blur' },{
+      min: 6,
+      max: 25,
+      message: '密码必须包含数字和字母组合，长度为6~25位',
+      trigger: 'blur'
+    },
+    {
+      validator: checkPassword,
+      trigger: 'blur'
+    }],
+  confirmPassword: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== passwordForm.value.newPassword) {
+          callback(new Error('新密码和确认密码不匹配！'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+};
+
+
+const router = useRouter()
 
 // 处理表单提交
 const handleSubmit = async () => {
-  // 验证新密码与确认密码是否一致
-  if (newPassword.value !== confirmPassword.value) {
-    message.value = '新密码和确认密码不匹配！';
-    messageColor.value = 'red';
-    return;
+
+  await formRef.value.validate();
+
+  const password_data = {
+    oldPassword: passwordForm.value.oldPassword,
+    newPassword: passwordForm.value.newPassword,
+    confirmPassword: passwordForm.value.confirmPassword
   }
-
+  console.log(password_data)
   try {
-    const response = await fetch('/api/change-password', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value
-      })
-    });
+    const response = await useChangePasswordService(password_data);
+    router.push('/')
 
-    const data = await response.json();
-    if (response.ok) {
-      message.value = data.message || '密码修改成功！';
-      messageColor.value = 'green';
-    } else {
-      message.value = data.error || '密码修改失败！';
-      messageColor.value = 'red';
-    }
   } catch (error) {
-    message.value = '请求异常，请稍后再试。';
-    messageColor.value = 'red';
+    console.log(response)
   }
 };
+
+
+
+
+
 </script>
 
 <style scoped lang="scss">
 .password-change-container {
   max-width: 400px;
-  margin: 20px auto;
+  margin: auto;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-
-  h2 {
-    text-align: center;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    div {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    input {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 4px;
-      background-color: #007bff;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s;
-
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-  }
 }
 </style>

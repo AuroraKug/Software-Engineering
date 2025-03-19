@@ -3,20 +3,21 @@ import {ElMessage} from 'element-plus'
 import { useTokenStore } from '@/stores/token'
 import { errorCodeMessages } from '@/constants/errorMessage'
 
-export const useChangePasswordService = async () => {
+export const useChangePasswordService = async (passwordData) => {
     try {
         const tokenStore=useTokenStore()
         const userToken=tokenStore.token
 
-        const response = await fetch('/api/change-password', {
+        const response = await fetch('/api/user/profile/change-password', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${userToken}`
           },
           body: JSON.stringify({
-            currentPassword: currentPassword.value,
-            newPassword: newPassword.value
+            oldPassword: passwordData.oldPassword,
+            newPassword: passwordData.newPassword,
+            confirmPassword: passwordData.confirmPassword
           })
         });
     
@@ -24,8 +25,9 @@ export const useChangePasswordService = async () => {
         if (response.ok) {
             ElMessage.success('密码修改成功')
         } else {
-            ElMessage.success('密码修改失败')
+            ElMessage.error('密码修改失败')
         }
+        return data
       } catch (error) {
         if (error.response?.data?.code) {
 			if (errorCodeMessages[error.response.data.code]) {
@@ -36,6 +38,7 @@ export const useChangePasswordService = async () => {
 		} else {
 			ElMessage.error('密码修改失败，请稍后重试')
 		}
+        
         throw error
       }
 }
