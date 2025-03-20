@@ -4,7 +4,9 @@ import { useTokenStore } from '@/stores/token'
 import { errorCodeMessages } from '@/constants/errorMessage'
 
 
-
+/* 
+ * 这里定义了一系列与用户认证相关的服务供外部调用
+ */
 
 export const useRegisterService = async (userData) => {
 	try {
@@ -62,7 +64,7 @@ export const useLogoutService = async () => {
 			method: 'POST',
 			headers: {
 			  'Content-Type': 'application/json',
-			  'Authorization': `Bearer ${userToken}` // 从 Pinia 获取 token
+			  'Authorization': `Bearer ${userToken}` 
 			},
 			body: JSON.stringify(data)
 		  });

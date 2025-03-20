@@ -3,6 +3,10 @@ import {ElMessage} from 'element-plus'
 import { useTokenStore } from '@/stores/token'
 import { errorCodeMessages } from '@/constants/errorMessage'
 
+/* 
+ * 这里定义了一系列与已经登录用户认证相关的服务供外部调用
+ */
+
 export const useChangePasswordService = async (passwordData) => {
     try {
         const tokenStore=useTokenStore()

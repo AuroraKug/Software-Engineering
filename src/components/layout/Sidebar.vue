@@ -1,13 +1,14 @@
 <template>
   <div class="sidebar-container" v-if="isSidebarVisible">
-    <!-- 关闭按钮 -->
+
+    <!-- 开启 sidebar的按钮 -->
     <el-button class="sidebar-close-btn" square size="small" @click="$emit('toggle-sidebar')" >
       <el-icon><Close /></el-icon>
     </el-button>
     <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
 
       <el-sub-menu index="1">
-
+        <!-- sidebar 预留的一些按钮 -->
         <template #title>
           <el-icon>
             <location />
@@ -60,7 +61,7 @@ const props = defineProps({
   }
 })
 
-// 以下方法仅作示例，按需使用
+
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }
@@ -74,7 +75,7 @@ const handleClose = (key: string, keyPath: string[]) => {
 .sidebar-container {
   position: fixed;
   width: 300px;
-  height: 100vh; /* 或者用 100% 如果父容器高度已定 */
+  height: 100vh; 
   background-color: #fff;
   box-sizing: border-box;
 }
@@ -87,18 +88,18 @@ const handleClose = (key: string, keyPath: string[]) => {
 }
 
 .el-menu-vertical-demo {
-  margin-top: 48px; /* 给关闭按钮留出空间 */
+  margin-top: 48px;
 }
 
-/* 关闭按钮放在右上角 */
+
 .sidebar-close-btn {
   position: absolute;
   top: 4px;
   right: 8px;
   z-index: 10;
-  width: 28px;  /* 固定宽度 */
-  height: 28px; /* 固定高度 */
-  min-width: 28px; /* 避免按钮内容影响尺寸 */
+  width: 28px;  
+  height: 28px; 
+  min-width: 28px; 
   margin-top: 10px;
   margin-right: 5px;
   padding: 4px;

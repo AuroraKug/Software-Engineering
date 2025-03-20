@@ -2,29 +2,24 @@
   <el-card class="password-change-container">
     <h2>修改密码</h2>
     <el-form ref="formRef" :model="passwordForm" :rules="rules" label-width="100px">
-      <!-- 当前密码 -->
       <el-form-item label="当前密码" prop="oldPassword">
         <el-input v-model="passwordForm.oldPassword" type="password" show-password />
       </el-form-item>
 
-      <!-- 新密码 -->
       <el-form-item label="新密码" prop="newPassword">
         <el-input v-model="passwordForm.newPassword" type="password" show-password />
       </el-form-item>
 
-      <!-- 确认新密码 -->
       <el-form-item label="确认新密码" prop="confirmPassword">
         <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
       </el-form-item>
 
-      <!-- 提交按钮 -->
       <el-form-item>
         <el-button type="primary" @click="handleSubmit">提交</el-button>
         <el-button @click="router.push('/')">取消</el-button>
       </el-form-item>
     </el-form>
 
-    <!-- 消息提示 -->
   </el-card>
 </template>
 
@@ -92,7 +87,6 @@ const rules = {
 
 const router = useRouter()
 
-// 处理表单提交
 const handleSubmit = async () => {
 
   await formRef.value.validate();

@@ -133,17 +133,14 @@ const props = defineProps({
 
 const emit = defineEmits(['change-style','toggle-sidebar','logout'])
 
-// 定义要触发的事件
 
 const settingsVisible = ref(false)
 
-// 打开设置弹窗
 const openSettings = () => {
   settingsVisible.value = true
 }
 
 const changeStyle = (style) => {
-  // 这里可以做更多处理
   emit('change-style', style)
   console.log('选中的风格：', style)
 }
@@ -155,8 +152,6 @@ const goToProfile = () => {
 }
 
 
-
-// 你可以直接使用 props.activeIndex，或者通过解构赋值：
 const { activeIndex } = props
 
 
@@ -166,11 +161,8 @@ const { activeIndex } = props
 .app-header {
   background-color: #ffffff;
   padding: 0;
-  /* 去掉左右留白 */
   margin: 0;
-  /* 确保没有外部间距 */
   width: 100vw;
-  /* 让 Header 占满整个视口宽度 */
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -183,7 +175,6 @@ const { activeIndex } = props
 }
 
 
-/* 设置区域按钮和图标对齐 */
 .header-controls {
   display: flex;
   gap: 10px;
@@ -191,13 +182,11 @@ const { activeIndex } = props
 }
 
 
-/* 去除 router-link 下划线 */
 .no-underline {
   text-decoration: none;
   color: inherit;
 }
 
-/* 设置弹窗内部样式 */
 .settings-content {
   display: flex;
   gap: 10px;
@@ -211,6 +200,5 @@ const { activeIndex } = props
 
 .side-menu.el-menu--collapse {
   width: 200px !important;
-  /* 根据需要调整宽度 */
 }
 </style>

@@ -45,7 +45,6 @@ const theme = ref('default')
 
 const isSidebarVisible = ref(false)
 
-// 切换侧边栏显示状态
 const handleToggleSidebar = () => {
   isSidebarVisible.value = !isSidebarVisible.value
   console.log("Sidebar happen")
@@ -63,15 +62,13 @@ const backgrounds = {
 }
 
 const defaultBg = backgrounds.simple
-// 定义一个背景样式变量，初始使用默认背景
+
 const backgroundImageUrl = ref(`url(${defaultBg})`)
 
-// 通过 computed 返回内联样式对象
 const containerStyle = computed(() => ({
   '--bg-image': backgroundImageUrl.value
 }))
 
-// 处理 Header 发出的背景风格切换事件
 const handleChangeStyle = (style) => {
   console.log("style-changed:", style)
   
@@ -115,7 +112,7 @@ main { flex:1; padding:2rem }
   height: 100%;
   background: var(--bg-image) no-repeat center center fixed;
   background-size: cover;
-  filter: brightness(0.6);  /* 只对背景图片应用滤镜 */
+  filter: brightness(0.6);  
   z-index: -1;
 }
 
