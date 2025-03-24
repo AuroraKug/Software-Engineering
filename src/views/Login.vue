@@ -17,6 +17,13 @@ const tokenStore = useTokenStore()
 /*
 * 表单验证规则
 * */
+const checkUsername = (rule, value, callback) => {
+  const validCharacters = /^[A-Za-z0-9_]+$/.test(value)
+  if (!validCharacters) {
+    callback(new Error('用户名只能包含数字、字母和下划线'))
+    return
+  }
+}
 
 const checkPassword = (rule, value, callback) => {
   const hasNumber = /\d/.test(value)
@@ -84,6 +91,10 @@ const rules = {
       min: 5,
       max: 16,
       message: '用户名长度为5~16位',
+      trigger: 'blur'
+    },
+    {
+      validator: checkUsername,
       trigger: 'blur'
     }
   ],
