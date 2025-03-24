@@ -1,12 +1,18 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import LayoutVue from '@/views/Layout.vue'
+import LoginVue from '@/views/Login.vue'
+import HomeVue from '@/views/Home.vue'
+import ResetVue from '@/views/Password-Change.vue'
+import UserProfileVue from '@/views/UserProfile.vue'
+
 import {useTokenStore} from "@/stores/token.js"
 
 import authRoutes from './auth.routes'
 import userProfileRoutes from './user.profile.routes'
 
 const mainRoutes = [
-	{ path: '/', component: LayoutVue }
+	{ path: '/', component: LayoutVue },
+	{path: '/home', component: HomeVue}
 ]
 
 const routes = [
@@ -14,6 +20,14 @@ const routes = [
 	...mainRoutes,
 	...userProfileRoutes
 ]
+
+// const r_s = [
+// 	{path: '/', component: ''},
+// 	{path: '/login', component: LoginVue},
+// 	{path: '/reset', component: ResetVue},
+// 	{path: '/user-profile', component: UserProfileVue},
+// 	{path: '/home', component: HomeVue}
+// ]
 
 const router = createRouter(
 	{
@@ -30,7 +44,8 @@ router.beforeEach((to, from, next) => {
 		if (to.path === '/login'  || to.path==='/') {
 			next()
 		} else {
-			next('/login')
+			// next('/login')
+			next()
 		}
 	}
 })

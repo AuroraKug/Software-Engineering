@@ -117,10 +117,10 @@ const rules = {
       message: '密码必须包含数字和字母组合，长度为6~25位',
       trigger: 'blur'
     },
-    {
-      validator: checkPassword,
-      trigger: 'blur'
-    }
+    // {
+    //   validator: checkPassword,
+    //   trigger: 'blur'
+    // }
   ],
   rePassword: [
     {
@@ -179,6 +179,7 @@ const register = async () => {
 }
 
 const login = async () => {
+  console.log('login')
   try {
     await formRef.value.validate()
     const response = await useLoginService({
