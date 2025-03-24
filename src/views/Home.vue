@@ -1,12 +1,19 @@
 <script setup>
 import {onUnmounted, ref, watch} from 'vue'
 import {ArrowDown, Operation} from '@element-plus/icons-vue'
+import Footer from "@/components/layout/Footer.vue";
+import Header from "@/components/layout/Header.vue";
 
 const maximumItemsPerPage = ref(10)
 const showSelector = ref(false)
+const activeFilter = ref('')
 
 const toggleSelector = () => {
   showSelector.value = !showSelector.value
+}
+
+const selectorFilter = (filter) => {
+  activeFilter.value = filter
 }
 
 watch(showSelector, (newVal) => {
@@ -23,6 +30,8 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <Header></Header>
+
   <div v-if="showSelector" class="selector-mask">
     <div class="selector-content">
       <h3>综合选择器</h3>
@@ -33,9 +42,16 @@ onUnmounted(() => {
 
   <div class="container">
     <div class="filter-bar">
-      <span class="filter-item">综合排序</span>
-      <el-dropdown>
-    <span class="el-dropdown-link">
+      <span
+          class="filter-item"
+          :class="{active: activeFilter === 'default'}"
+          @click="selectorFilter('default')"
+      >综合排序</span>
+      <el-dropdown @command="selectorFilter">
+    <span
+        class="el-dropdown-link"
+        :class="{active: activeFilter === 'rating-high' || activeFilter === 'rating-low'}"
+    >
       评分
       <el-icon class="el-icon--right">
         <arrow-down/>
@@ -43,14 +59,17 @@ onUnmounted(() => {
     </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>好评优先</el-dropdown-item>
-            <el-dropdown-item>差评优先</el-dropdown-item>
+            <el-dropdown-item command="rating-high">好评优先</el-dropdown-item>
+            <el-dropdown-item command="rating-low">差评优先</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
 
       <el-dropdown>
-    <span class="el-dropdown-link">
+    <span
+        class="el-dropdown-link"
+        :class="{active: activeFilter === 'price-high' || activeFilter === 'price-low'}"
+    >
       价格
       <el-icon class="el-icon--right">
         <arrow-down/>
@@ -58,13 +77,17 @@ onUnmounted(() => {
     </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>高价优先</el-dropdown-item>
-            <el-dropdown-item>低价优先</el-dropdown-item>
+            <el-dropdown-item command="price-high">高价优先</el-dropdown-item>
+            <el-dropdown-item command="price-low">低价优先</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
 
-      <el-icon class="filter-icon" @click="toggleSelector">
+      <el-icon
+          class="filter-icon"
+          :class="{active: activeFilter === 'comprehensive'}"
+          @click="toggleSelector"
+      >
         <operation></operation>
       </el-icon>
 
@@ -93,16 +116,36 @@ onUnmounted(() => {
         </li>
       </ul>
     </div>
+    <div class="pagination-bar">
+        <el-pagination background layout="prev, pager, next" :total="100" />
+    </div>
   </div>
+  <Footer></Footer>
 </template>
 
-<style scoped>
-ul, li, div{
+<style>
+ul, ol, li {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+img {
+  vertical-align: middle;
+  border: 0;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+</style>
+
+<style scoped>
 .selector-mask {
   position: fixed;
   top: 0;
@@ -148,7 +191,36 @@ ul, li, div{
   cursor: pointer;
   display: flex;
   align-items: center;
+  font-size: 14px;
+  color: #333;
+  transition: color 0.3s ease;
   margin-right: 30px;
+}
+
+.filter-bar .el-dropdown-link:hover {
+  color: #45a1ff;
+}
+
+.filter-bar .el-dropdown-link.active {
+  color: #45a1ff;
+}
+
+.filter-bar .el-dropdown-link:focus-visible {
+  outline: none;
+}
+
+.filter-bar .el-icon--right {
+  margin-left: 5px;
+  color: #999;
+  transition: color 0.2s ease;
+}
+
+.filter-bar .el-dropdown-link:hover .el-icon--right {
+  color: #45a1ff;
+}
+
+.filter-bar .el-dropdown-link.active .el-icon--right {
+  color: #45a1ff;
 }
 
 .filter-item {
@@ -156,6 +228,15 @@ ul, li, div{
   color: #333;
   margin-right: 30px;
   cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.filter-item:hover {
+  color: #45a1ff;
+}
+
+.filter-item.active {
+  color: #45a1ff;
 }
 
 
@@ -164,6 +245,15 @@ ul, li, div{
   color: #999;
   cursor: pointer;
   margin-left: auto;
+  transition: color 0.3s ease;
+}
+
+.filter-icon:hover {
+  color: #45a1ff;
+}
+
+.filter-icon.active {
+  color: #45a1ff;
 }
 
 .shop-list {
@@ -173,7 +263,6 @@ ul, li, div{
 
 .shop-list ul {
   width: 800px;
-  margin-bottom: 10px;
   margin-left: 0;
 }
 
@@ -264,5 +353,30 @@ ul, li, div{
   color: #666;
   margin: 0;
   line-height: 1.5;
+}
+
+.pagination-bar {
+  width: 800px;
+  height: 50px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: 40px;
+  margin-bottom: 20px;
+}
+
+:deep(.el-pagination .btn-prev),
+:deep(.el-pagination .btn-next),
+:deep(.el-pagination .el-pager li) {
+  background-color: #f0f0f0;
+}
+
+:deep(.el-pagination .btn-prev),
+:deep(.el-pagination .btn-next),
+:deep(.el-pagination .el-pager li) {
+  border: 1px solid #ccc;
+  border-radius: 10px;
 }
 </style>
