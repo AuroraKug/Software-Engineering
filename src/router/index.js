@@ -1,33 +1,22 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import {useTokenStore} from "@/stores/token.js"
+
 import LayoutVue from '@/views/Layout.vue'
 import LoginVue from '@/views/Login.vue'
 import ResetVue from '@/views/Password-Change.vue'
 import UserProfileVue from '@/views/UserProfile.vue'
 import ShopVue from '@/views/Shop.vue'
 
-import {useTokenStore} from "@/stores/token.js"
-
-import authRoutes from './auth.routes'
-import userProfileRoutes from './user.profile.routes'
-
-const mainRoutes = [
-	{path: '/', component: LayoutVue},
-	{path: '/shop', component: ShopVue}
-]
 
 const routes = [
-	...authRoutes,
-	...mainRoutes,
-	...userProfileRoutes
-]
+	{path: '/login', component: LoginVue},
+	{path: '/reset', component: ResetVue},
 
-// const r_s = [
-// 	{path: '/', component: ''},
-// 	{path: '/login', component: LoginVue},
-// 	{path: '/reset', component: ResetVue},
-// 	{path: '/user-profile', component: UserProfileVue},
-// 	{path: '/home', component: HomeVue}
-// ]
+	{path: '/', component: LayoutVue},
+	{path: '/shop', component: ShopVue},
+
+	{path: '/user-profile', component: UserProfileVue},
+]
 
 const router = createRouter(
 		{
