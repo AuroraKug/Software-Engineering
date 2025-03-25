@@ -14,7 +14,27 @@ import Footer from "@/components/layout/Footer.vue";
   <Footer></Footer>
 </template>
 
+<style>
+ul, ol, li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+img {
+  vertical-align: middle;
+  border: 0;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+</style>
 
 <style scoped>
 
